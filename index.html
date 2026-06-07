@@ -1663,6 +1663,28 @@
       //   Math.min(a, b) returns whichever is smaller.
     }
 
+    async function readApiResponse(res, fallbackMessage) {
+      const rawText = await res.text();
+      let data = {};
+      let parseError = "";
+
+      if (rawText) {
+        try {
+          data = JSON.parse(rawText);
+        } catch {
+          parseError = rawText.trim();
+        }
+      }
+
+      return {
+        ok: res.ok,
+        status: res.status,
+        data,
+        parseError,
+        errorMessage: data?.error || parseError || fallbackMessage || `Server error ${res.status}`,
+      };
+    }
+
     userInputEl.addEventListener("input", () => autoGrow(userInputEl));
     // ^ Every time you type something, re-calculate the height.
     //   "input" event fires whenever the text changes.
@@ -1790,16 +1812,20 @@
         removeTyping(typingId);
 
         // ── Read the server's response ──
-        const data = await res.json();
-        // ^ Convert the server's response from JSON text back into
-        //   a JavaScript object. This is the reverse of JSON.stringify().
+        const data = await readApiResponse(res, "Failed to send message");
+        // ^ Accept JSON when we get it, but also surface plain text errors.
+
+        if (data.parseError) {
+          appendBubble("ai", `❌ **Error:** ${data.errorMessage}`);
+          return;
+        }
 
         // ── Check if something went wrong ──
         if (!res.ok) {
           // ^ res.ok is true if the server returned a success code (200).
           //   If it's false, something went wrong (bad key, server error, etc.)
 
-          const msg = data?.error || `Server error ${res.status}`;
+          const msg = data.errorMessage;
           // ^ data?.error uses "optional chaining" (?.) which means:
           //   "if data exists AND has an error property, use it.
           //    Otherwise, use the fallback message."
@@ -2409,9 +2435,13 @@
             notes: notesContent,
           }),
         });
-        const data = await res.json();
+        const data = await readApiResponse(res, "Failed to review answer");
+        if (data.parseError) {
+          crosscheckOutputEl.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
+          return;
+        }
         if (!res.ok) {
-          crosscheckOutputEl.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data?.error || "Failed to review answer"}</div>`;
+          crosscheckOutputEl.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
           return;
         }
 
@@ -2486,9 +2516,13 @@
             notes: notesContent,
           }),
         });
-        const data = await res.json();
+        const data = await readApiResponse(res, "Failed to generate podcast");
+        if (data.parseError) {
+          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
+          return;
+        }
         if (!res.ok) {
-          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data?.error || "Failed to generate podcast"}</div>`;
+          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
           return;
         }
 
@@ -2579,9 +2613,13 @@
             notes: notesContent,
           }),
         });
-        const data = await res.json();
+        const data = await readApiResponse(res, "Failed to generate flashcards");
+        if (data.parseError) {
+          output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
+          return;
+        }
         if (!res.ok) {
-          output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">❌ Error: ${data?.error || "Failed to generate flashcards"}</div>`;
+          output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
           return;
         }
 
@@ -2642,9 +2680,13 @@
             notes: notesContent,
           }),
         });
-        const data = await res.json();
+        const data = await readApiResponse(res, "Failed to generate quiz");
+        if (data.parseError) {
+          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
+          return;
+        }
         if (!res.ok) {
-          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data?.error || "Failed to generate quiz"}</div>`;
+          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
           return;
         }
 
@@ -2764,10 +2806,15 @@
           }),
         });
 
-        const data = await res.json();
+        const data = await readApiResponse(res, "Failed to generate flashcards");
+
+        if (data.parseError) {
+          output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
+          return;
+        }
 
         if (!res.ok) {
-          output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">❌ Error: ${data?.error || "Failed to generate flashcards"}</div>`;
+          output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
           return;
         }
 
@@ -2832,10 +2879,15 @@
           }),
         });
 
-        const data = await res.json();
+        const data = await readApiResponse(res, "Failed to generate quiz");
+
+        if (data.parseError) {
+          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
+          return;
+        }
 
         if (!res.ok) {
-          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data?.error || "Failed to generate quiz"}</div>`;
+          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data.errorMessage}</div>`;
           return;
         }
 

@@ -510,6 +510,28 @@
     const { useState, useEffect, useRef } = React;
 
     // ============= API CALLS =============
+    const readApiResponse = async (res, fallbackMessage) => {
+      const rawText = await res.text();
+      let data = {};
+      let parseError = "";
+
+      if (rawText) {
+        try {
+          data = JSON.parse(rawText);
+        } catch {
+          parseError = rawText.trim();
+        }
+      }
+
+      return {
+        ok: res.ok,
+        status: res.status,
+        data,
+        parseError,
+        errorMessage: data?.error || parseError || fallbackMessage || `Server error ${res.status}`,
+      };
+    };
+
     const callGemini = async (messages, systemPrompt) => {
       try {
         const res = await fetch("/api/chat", {
@@ -522,8 +544,9 @@
             model: "gemini-2.0-flash",
           }),
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error || "API error");
+        const data = await readApiResponse(res, "API error");
+        if (data.parseError) throw new Error(data.errorMessage);
+        if (!res.ok) throw new Error(data.errorMessage);
         return data.reply;
       } catch (err) {
         console.error("Gemini API error:", err);
