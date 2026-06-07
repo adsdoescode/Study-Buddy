@@ -56,13 +56,12 @@ cd study-buddy
 ### 2. Install dependencies
 
 ```bash
-cd study_buddy
 pip install -r requirements.txt
 ```
 
 ### 3. Set up your API key
 
-Create a `.env` file inside the `study_buddy/` folder:
+Create a `.env` file in the repository root:
 
 ```env
 GEMINI_API_KEY=your-google-gemini-api-key-here
@@ -82,7 +81,11 @@ run.bat
 python app.py
 ```
 
-### 5. Open in browser
+### 5. Deploy on Vercel
+
+This repo is now flattened for direct Vercel deployment. The root-level `app.py` is the Flask entrypoint, and the HTML files live beside it so Vercel can package the app without the extra nested folder.
+
+### 6. Open in browser
 
 ```
 http://localhost:5000
@@ -94,15 +97,14 @@ http://localhost:5000
 
 ```
 study-buddy/
-├── study_buddy/
-│   ├── app.py              # Flask backend & Gemini AI integration
-│   ├── index.html          # Main frontend (chat, quiz, flashcards)
-│   ├── career-dreamer.html # Career Dreamer feature
-│   ├── requirements.txt    # Python dependencies
-│   ├── run.bat             # One-click Windows launcher
-│   ├── .env                # API key (NOT committed to git)
-│   └── .gitignore          # Git ignore rules
-├── .gitignore
+├── app.py              # Flask backend & Gemini AI integration
+├── index.html          # Main frontend (chat, quiz, flashcards)
+├── career-dreamer.html # Career Dreamer feature
+├── requirements.txt    # Python dependencies
+├── run.bat             # One-click Windows launcher
+├── study_notes.txt     # Sample study notes
+├── .env                # API key (NOT committed to git)
+├── .gitignore          # Git ignore rules
 └── README.md
 ```
 
