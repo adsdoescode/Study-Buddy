@@ -98,6 +98,85 @@ CORS(app)
 # ^ Enables CORS (explained above). Just a safety net.
 
 
+def process_api_request(endpoint, data):
+    """Handle all API endpoints with a shared Gemini flow."""
+
+    system_prompt = SYSTEM_PROMPT
+    messages = data.get("messages", [])
+    model_name = data.get("model", "gemini-2.0-flash")
+    notes = data.get("notes", "")
+
+    # Clean and validate the incoming conversation history.
+    messages = [
+        msg for msg in messages
+        if isinstance(msg, dict)
+        and msg.get("role") in {"user", "assistant"}
+        and isinstance(msg.get("content"), str)
+        and msg["content"].strip()
+    ]
+
+    # Enhance system prompt based on endpoint and require full chat context.
+    if endpoint == "chat":
+        system_prompt = f"{system_prompt}\n\nAlways answer in numbered steps. Each step should contain only one idea and only one part. Provide only the first step in each response, never multiple steps at once. End by telling the user to say 'move to next step' to continue, or 'hint for next step', or 'explain in simpler terms'."
+    elif endpoint == "podcast":
+        system_prompt = f"{system_prompt}\n\nUsing the full conversation history from the entire chat session, including earlier user questions and assistant replies, create a short podcast-style answer in English. Write as if you are speaking in a friendly, human-hosted educational podcast with natural spoken phrasing. Produce only the spoken text (plain, TTS-ready) with a natural, conversational tone. Avoid using symbols like # or @ (do not say 'hashtag' or 'at'); avoid code blocks, headers, or markup. Use short clear sentences and do not emit any extra metadata or instructions. Return only the script suitable for text-to-speech in English."
+    elif endpoint == "flashcards":
+        system_prompt = f"{system_prompt}\n\nUsing the full conversation history from the entire chat session, including earlier questions and answers, create flashcard questions and answers in English. Return them as a list of Q&A pairs. Format: 'Q: [question]\nA: [answer]' on separate lines. Create 5-10 cards."
+    elif endpoint == "quiz":
+        system_prompt = f"{system_prompt}\n\nUsing the full conversation history from the entire chat session, including earlier questions and answers, create a quiz with 5 multiple choice questions in English. Format each as: 'Q[number]: [question]\nA) [option]\nB) [option]\nC) [option]\nD) [option]\nAnswer: [correct letter]' on separate lines."
+    elif endpoint == "crosscheck":
+        system_prompt = f"{system_prompt}\n\nUsing the full conversation history from the entire chat session, review the student's question and answer provided below in English. If the answer is wrong, explain exactly where it is incorrect, show how to fix it, and reveal the correct answer. Do not only give hints; provide a clear correction and the correct response."
+
+    # If notes are uploaded, instruct the AI to prioritize notes but answer anyway if outside the notes
+    if isinstance(notes, str) and notes.strip():
+        notes_stripped = notes.strip()
+        system_prompt = (
+            f"{system_prompt}\n\n"
+            f"CONTEXT: The student has uploaded the following study notes:\n"
+            f"--- START OF NOTES ---\n{notes_stripped}\n--- END OF NOTES ---\n\n"
+            f"IMPORTANT: You must answer mainly with respect to the provided study notes above. Prioritize "
+            f"using the information in these notes to answer the user's questions and generate any content (podcasts, "
+            f"quizzes, flashcards, or reviews). However, if the user asks a question or requests something that is "
+            f"not covered in these notes, you MUST still answer the question and fulfill the request fully using "
+            f"your general knowledge."
+        )
+
+    # --- Safety checks ---
+    if not GEMINI_API_KEY:
+        return {
+            "error": "Server has no API key configured. Ask the owner to add GEMINI_API_KEY to the .env file."
+        }, 500
+
+    if not messages:
+        return {"error": "No messages provided."}, 400
+
+    # --- Talk to Gemini AI ---
+    try:
+        model = genai.GenerativeModel(
+            model_name=model_name,
+            system_instruction=system_prompt,
+        )
+
+        gemini_history = []
+        for msg in messages[:-1]:
+            role = "model" if msg["role"] == "assistant" else "user"
+            gemini_history.append({
+                "role": role,
+                "parts": [msg["content"]]
+            })
+
+        chat_session = model.start_chat(history=gemini_history)
+        last_message = messages[-1]["content"]
+        response = chat_session.send_message(last_message)
+
+        return {"reply": response.text}, 200
+
+    except Exception as e:
+        error_msg = str(e)
+        print(f"[ERROR] Gemini API: {error_msg}")
+        return {"error": error_msg}, 500
+
+
 # =====================================================================
 #  STEP 4: DEFINE ROUTES — What happens when someone visits a URL
 # =====================================================================
@@ -147,81 +226,8 @@ def chat():
     
     # Detect which endpoint was called
     endpoint = request.path.split('/')[-1]  # Get last part of URL
-    
-    system_prompt = SYSTEM_PROMPT
-    messages = data.get("messages", [])
-    model_name = data.get("model", "gemini-2.0-flash")
-    notes = data.get("notes", "")
-
-    # Clean and validate the incoming conversation history.
-    messages = [
-        msg for msg in messages
-        if isinstance(msg, dict)
-        and msg.get("role") in {"user", "assistant"}
-        and isinstance(msg.get("content"), str)
-        and msg["content"].strip()
-    ]
-
-    # Enhance system prompt based on endpoint and require full chat context.
-    if endpoint == "chat":
-        system_prompt = f"{system_prompt}\n\nAlways answer in numbered steps. Each step should contain only one idea and only one part. Provide only the first step in each response, never multiple steps at once. End by telling the user to say 'move to next step' to continue, or 'hint for next step', or 'explain in simpler terms'."
-    elif endpoint == "podcast":
-        system_prompt = f"{system_prompt}\n\nUsing the full conversation history from the entire chat session, including earlier user questions and assistant replies, create a short podcast-style answer in English. Write as if you are speaking in a friendly, human-hosted educational podcast with natural spoken phrasing. Produce only the spoken text (plain, TTS-ready) with a natural, conversational tone. Avoid using symbols like # or @ (do not say 'hashtag' or 'at'); avoid code blocks, headers, or markup. Use short clear sentences and do not emit any extra metadata or instructions. Return only the script suitable for text-to-speech in English."
-    elif endpoint == "flashcards":
-        system_prompt = f"{system_prompt}\n\nUsing the full conversation history from the entire chat session, including earlier questions and answers, create flashcard questions and answers in English. Return them as a list of Q&A pairs. Format: 'Q: [question]\nA: [answer]' on separate lines. Create 5-10 cards."
-    elif endpoint == "quiz":
-        system_prompt = f"{system_prompt}\n\nUsing the full conversation history from the entire chat session, including earlier questions and answers, create a quiz with 5 multiple choice questions in English. Format each as: 'Q[number]: [question]\nA) [option]\nB) [option]\nC) [option]\nD) [option]\nAnswer: [correct letter]' on separate lines."
-    elif endpoint == "crosscheck":
-        system_prompt = f"{system_prompt}\n\nUsing the full conversation history from the entire chat session, review the student's question and answer provided below in English. If the answer is wrong, explain exactly where it is incorrect, show how to fix it, and reveal the correct answer. Do not only give hints; provide a clear correction and the correct response."
-
-    # If notes are uploaded, instruct the AI to prioritize notes but answer anyway if outside the notes
-    if isinstance(notes, str) and notes.strip():
-        notes_stripped = notes.strip()
-        system_prompt = (
-            f"{system_prompt}\n\n"
-            f"CONTEXT: The student has uploaded the following study notes:\n"
-            f"--- START OF NOTES ---\n{notes_stripped}\n--- END OF NOTES ---\n\n"
-            f"IMPORTANT: You must answer mainly with respect to the provided study notes above. Prioritize "
-            f"using the information in these notes to answer the user's questions and generate any content (podcasts, "
-            f"quizzes, flashcards, or reviews). However, if the user asks a question or requests something that is "
-            f"not covered in these notes, you MUST still answer the question and fulfill the request fully using "
-            f"your general knowledge."
-        )
-
-    # --- Safety checks ---
-    if not GEMINI_API_KEY:
-        return jsonify({
-            "error": "Server has no API key configured. Ask the owner to add GEMINI_API_KEY to the .env file."
-        }), 500
-
-    if not messages:
-        return jsonify({"error": "No messages provided."}), 400
-
-    # --- Talk to Gemini AI ---
-    try:
-        model = genai.GenerativeModel(
-            model_name=model_name,
-            system_instruction=system_prompt,
-        )
-
-        gemini_history = []
-        for msg in messages[:-1]:
-            role = "model" if msg["role"] == "assistant" else "user"
-            gemini_history.append({
-                "role": role,
-                "parts": [msg["content"]]
-            })
-
-        chat_session = model.start_chat(history=gemini_history)
-        last_message = messages[-1]["content"]
-        response = chat_session.send_message(last_message)
-
-        return jsonify({"reply": response.text})
-
-    except Exception as e:
-        error_msg = str(e)
-        print(f"[ERROR] Gemini API: {error_msg}")
-        return jsonify({"error": error_msg}), 500
+    payload, status_code = process_api_request(endpoint, data)
+    return jsonify(payload), status_code
 
 
 # =====================================================================
