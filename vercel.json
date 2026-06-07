@@ -6,10 +6,6 @@
   },
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/[...path]"
-    },
-    {
       "source": "/career-dreamer",
       "destination": "/career-dreamer.html"
     }
