@@ -1,0 +1,20 @@
+# Environments
+study_buddy/.env
+study_buddy/.env.*
+study_buddy/venv/
+study_buddy/.venv/
+study_buddy/env/
+
+# Python Cache
+study_buddy/__pycache__/
+study_buddy/*.py[cod]
+
+# IDEs
+.vscode/
+.idea/
+study_buddy/.vscode/
+study_buddy/.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

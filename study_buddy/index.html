@@ -1,0 +1,2942 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Buddy 📚</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* =====================================================
+     COLORS & TOKENS — tweak these to restyle everything
+     ===================================================== */
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --card: #21253a;
+      --border: #2e3352;
+      --accent: #6c8cff;
+      --accent2: #ff7eb6;
+      --accent3: #52e8a0;
+      --text: #e8eaf6;
+      --muted: #7b80a0;
+      --user-bg: #2a3060;
+      --ai-bg: #1e2235;
+      --radius: 16px;
+      --font-ui: 'Nunito', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-ui);
+      background: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 22px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      font-size: 1.25rem;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: grid;
+      place-items: center;
+      font-size: 1.1rem;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .header-right {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-icon {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: .82rem;
+    }
+
+    .btn-icon:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── SIDEBAR (Settings Panel) ── */
+    #sidebar {
+      width: 340px;
+      min-width: 340px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(0);
+      transition: transform .25s ease, min-width .25s ease, width .25s ease;
+      overflow: hidden;
+    }
+
+    #sidebar.hidden {
+      transform: translateX(-100%);
+      min-width: 0;
+      width: 0;
+    }
+
+    .sidebar-inner {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .section-label {
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field label {
+      display: block;
+      font-weight: 700;
+      font-size: .9rem;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .field label small {
+      font-weight: 400;
+      color: var(--muted);
+      margin-left: 6px;
+      font-size: .8rem;
+    }
+
+    .input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .15s;
+      resize: none;
+    }
+
+    .file-input {
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+
+    .upload-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .upload-card strong {
+      color: var(--accent);
+      font-size: .95rem;
+    }
+
+    .upload-card p {
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .upload-card button {
+      width: fit-content;
+      align-self: start;
+    }
+
+    .input:focus {
+      border-color: var(--accent);
+    }
+
+    .input::placeholder {
+      color: var(--muted);
+    }
+
+    textarea.input {
+      min-height: 220px;
+      font-size: .85rem;
+      line-height: 1.6;
+    }
+
+    /* Prompt hint box */
+    .hint-box {
+      background: #1a2540;
+      border: 1px solid #2a3a60;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: .8rem;
+      color: #8899cc;
+      line-height: 1.6;
+    }
+
+    .hint-box strong {
+      color: var(--accent);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* subject chips */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 13px;
+      font-size: .8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+      color: var(--muted);
+      user-select: none;
+    }
+
+    .chip.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .chip:hover:not(.active) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), #8b6dff);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      padding: 12px;
+      font-family: var(--font-ui);
+      font-weight: 800;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+
+    .btn-primary:hover {
+      opacity: .9;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* ── CHAT AREA ── */
+    #chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* (API key bar removed — key is stored server-side) */
+
+    /* messages */
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+
+    /* scrollbar */
+    #messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #messages::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    /* welcome screen */
+    #welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      gap: 16px;
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .welcome-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      font-size: 2rem;
+      box-shadow: 0 8px 32px rgba(108, 140, 255, .3);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    #welcome h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    #welcome p {
+      max-width: 360px;
+      line-height: 1.6;
+    }
+
+    .quick-starts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .qs-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: .85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+      color: var(--text);
+      font-family: var(--font-ui);
+    }
+
+    .qs-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #1e2450;
+    }
+
+    /* message bubbles */
+    .msg {
+      display: flex;
+      gap: 10px;
+      max-width: 800px;
+      animation: msgIn .2s ease;
+    }
+
+    @keyframes msgIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .msg.user {
+      flex-direction: row-reverse;
+      align-self: flex-end;
+    }
+
+    .msg.ai {
+      align-self: flex-start;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+    }
+
+    .msg.user .avatar {
+      background: var(--user-bg);
+    }
+
+    .msg.ai .avatar {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+    }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      line-height: 1.65;
+      font-size: .92rem;
+      max-width: 620px;
+      word-break: break-word;
+    }
+
+    .msg.user .bubble {
+      background: var(--user-bg);
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg.ai .bubble {
+      background: var(--ai-bg);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    /* markdown in bubbles */
+    .bubble h1,
+    .bubble h2,
+    .bubble h3 {
+      font-weight: 800;
+      margin: .8em 0 .4em;
+      color: var(--accent);
+    }
+
+    .bubble h1 {
+      font-size: 1.1rem;
+    }
+
+    .step-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .step-title {
+      font-weight: 900;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .step-content {
+      color: var(--text);
+      line-height: 1.7;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+    }
+
+    .step-hint {
+      background: rgba(82,232,160,.08);
+      border: 1px solid rgba(82,232,160,.2);
+      border-radius: 12px;
+      padding: 12px;
+      color: #d4f7d8;
+      margin-top: 10px;
+      font-size: .93rem;
+    }
+
+    .step-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .step-btn {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-size: .9rem;
+      transition: all .15s;
+    }
+
+    .step-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .step-btn.secondary {
+      background: rgba(255,255,255,.02);
+    }
+    
+    .step-btn.hidden {
+      display: none;
+    }
+
+    .bubble h2 {
+      font-size: 1rem;
+    }
+
+    .bubble h3 {
+      font-size: .95rem;
+    }
+
+    .bubble p {
+      margin: .4em 0;
+    }
+
+    .bubble ul,
+    .bubble ol {
+      padding-left: 1.4em;
+      margin: .4em 0;
+    }
+
+    .bubble li {
+      margin: .25em 0;
+    }
+
+    .bubble strong {
+      color: var(--accent3);
+    }
+
+    .bubble em {
+      color: var(--accent2);
+    }
+
+    .bubble code {
+      background: #0d1020;
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: .82em;
+      color: var(--accent3);
+    }
+
+    .bubble pre {
+      background: #0d1020;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin: .6em 0;
+      overflow-x: auto;
+    }
+
+    .bubble pre code {
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+
+    .bubble blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+      color: var(--muted);
+      margin: .4em 0;
+    }
+
+    .bubble hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: .8em 0;
+    }
+
+    /* typing dots */
+    .typing-dots {
+      display: flex;
+      gap: 5px;
+      padding: 4px 0;
+      align-items: center;
+    }
+
+    .typing-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      animation: dot .9s infinite;
+    }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: .15s;
+    }
+
+    .typing-dots span:nth-child(3) {
+      animation-delay: .3s;
+    }
+
+    @keyframes dot {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(.8);
+        opacity: .4;
+      }
+
+      40% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+    }
+
+    /* subject badge in chat */
+    .subject-badge {
+      align-self: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: .75rem;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: .5px;
+    }
+
+    /* ── INPUT BAR ── */
+    #input-bar {
+      padding: 14px 20px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    #user-input {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: .92rem;
+      outline: none;
+      resize: none;
+      max-height: 140px;
+      overflow-y: auto;
+      transition: border-color .15s;
+      line-height: 1.5;
+    }
+
+    #user-input:focus {
+      border-color: var(--accent);
+    }
+
+    #user-input::placeholder {
+      color: var(--muted);
+    }
+
+    #send-btn {
+      background: linear-gradient(135deg, var(--accent), #8b6dff);
+      border: none;
+      border-radius: 12px;
+      width: 46px;
+      height: 46px;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    #send-btn:hover {
+      opacity: .85;
+      transform: scale(1.05);
+    }
+
+    #send-btn:active {
+      transform: scale(.97);
+    }
+
+    #send-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .char-hint {
+      font-size: .72rem;
+      color: var(--muted);
+      align-self: center;
+      white-space: nowrap;
+    }
+
+    /* scrollbar sidebar */
+    .sidebar-inner::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar-inner::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    /* responsive */
+    @media (max-width: 640px) {
+      #sidebar {
+        position: absolute;
+        z-index: 10;
+        height: 100%;
+        width: 300px;
+        min-width: 300px;
+      }
+
+      #sidebar.hidden {
+        transform: translateX(-100%);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FEATURE TABS & SECTIONS
+       ═══════════════════════════════════════════════════════════════ */
+
+    .feature-tabs {
+      display: flex;
+      gap: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+      align-items: stretch;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 14px 16px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: .9rem;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: var(--font-ui);
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+      background: #1e2235;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: #1e2235;
+    }
+
+    .feature-section {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .section-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 24px;
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .feature-header {
+      text-align: center;
+    }
+
+    .feature-header h2 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .feature-header p {
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .podcast-input,
+    .flashcard-input,
+    .quiz-input {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--card);
+      padding: 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .podcast-input textarea,
+    .flashcard-input textarea,
+    .quiz-input textarea {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: .92rem;
+      outline: none;
+      resize: none;
+      min-height: 80px;
+    }
+
+    .feature-output {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      max-height: 60vh;
+      overflow-y: auto;
+      line-height: 1.8;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Flashcards Specific */
+    .flashcards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      min-height: 200px;
+    }
+
+    .flashcard {
+      background: linear-gradient(135deg, var(--card), #2a3055);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      transition: all .3s;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      perspective: 1000px;
+    }
+
+    .flashcard:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(108, 140, 255, .2);
+      border-color: var(--accent);
+    }
+
+    .flashcard.flipped {
+      background: linear-gradient(135deg, #52e8a0, #30a070);
+      color: #000;
+    }
+
+    /* Quiz Specific */
+    .quiz-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      max-height: 65vh;
+      overflow-y: auto;
+    }
+
+    .quiz-question {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .quiz-question-text {
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .quiz-option {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: all .2s;
+      color: var(--text);
+      font-family: var(--font-ui);
+      text-align: left;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--accent);
+      background: #1f2540;
+    }
+
+    .quiz-option.selected {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .quiz-option.correct {
+      background: var(--accent3);
+      color: #000;
+      border-color: var(--accent3);
+    }
+
+    .quiz-option.incorrect {
+      background: #ff6b6b;
+      color: #fff;
+      border-color: #ff6b6b;
+    }
+
+    .quiz-score {
+      background: linear-gradient(135deg, var(--accent), #8b6dff);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+      color: #fff;
+      font-weight: 900;
+      font-size: 1.2rem;
+    }
+
+    .crosscheck-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      max-height: 65vh;
+      overflow-y: auto;
+    }
+
+    .crosscheck-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .crosscheck-question {
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .crosscheck-options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .crosscheck-choice {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      text-align: left;
+      cursor: pointer;
+      transition: all .2s;
+      color: var(--text);
+      font-family: var(--font-ui);
+    }
+
+    .crosscheck-choice:hover {
+      border-color: var(--accent);
+      background: rgba(82,232,160,.05);
+    }
+
+    .crosscheck-choice.correct {
+      background: var(--accent3);
+      border-color: var(--accent3);
+      color: #000;
+    }
+
+    .crosscheck-choice.incorrect {
+      background: #ff6b6b;
+      border-color: #ff6b6b;
+      color: #fff;
+    }
+
+    .crosscheck-feedback {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .bubble-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════════
+     ✏️  CUSTOMISE YOUR STUDY BUDDY HERE (Step 1)
+     Edit the JS config below — that's it!
+     ═══════════════════════════════════════════════ -->
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      Study<span>Buddy</span>
+    </div>
+    <div class="header-right">
+      <span id="header-notes-badge" style="display:none; background: rgba(82, 232, 160, 0.15); color: var(--accent3); border: 1px solid var(--accent3); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; margin-right: 10px; font-weight: bold; align-items: center; gap: 4px;">📝 Notes Mode</span>
+      <a href="/career-dreamer" class="btn-icon" style="text-decoration: none; color: inherit;">🎯 Career Dreamer</a>
+      <button class="btn-icon" id="toggle-sidebar-btn">⚙️ Settings</button>
+      <button class="btn-icon" id="clear-btn">🗑️ Clear</button>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav id="feature-tabs" class="feature-tabs">
+    <button class="tab-btn active" data-tab="chat">💬 Chat</button>
+    <button class="tab-btn" data-tab="podcasts">🎧 Podcasts</button>
+    <button class="tab-btn" data-tab="flashcards">🎯 Flashcards</button>
+    <button class="tab-btn" data-tab="quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="crosscheck">🧪 Crosscheck</button>
+  </nav>
+
+  <main>
+
+    <!-- SETTINGS SIDEBAR -->
+    <div id="sidebar">
+      <div class="sidebar-inner">
+
+        <div class="field">
+          <label>Buddy Name</label>
+          <input type="text" class="input" id="buddy-name-input" placeholder="e.g. Zara, Max, Nova…" />
+        </div>
+
+        <div class="field">
+          <label>Upload Notes <small>(optional)</small></label>
+          <input type="file" class="input file-input" id="upload-input-sidebar" accept=".txt" />
+          <button class="btn-primary" id="upload-sidebar-btn">📤 Upload Notes</button>
+          <div id="upload-sidebar-status" class="hint-box" style="display:none; margin-top: 8px;"></div>
+        </div>
+
+        <div class="field">
+          <label>Quick Subject Chips <small>(shown in chat)</small></label>
+          <div class="chips" id="subject-chips-container"></div>
+        </div>
+
+        <button class="btn-primary" id="save-settings-btn">💾 Save Settings</button>
+
+        <div class="hint-box" style="margin-top:auto">
+          <strong>🛠️ For developers</strong>
+          Edit the <code style="color:var(--accent3)">CONFIG</code> object at the top of
+          the &lt;script&gt; tag to change defaults. No build step needed!
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="chat-area">
+
+      <!-- API key is stored on the server — no input needed here -->
+
+      <!-- Messages -->
+      <div id="messages">
+        <div id="welcome">
+          <div class="welcome-icon">🤖</div>
+          <h2 id="welcome-title">Hey! I'm your Study Buddy</h2>
+          <p id="welcome-desc">Ask me anything about your syllabus. I'll explain, quiz you, or help you revise —
+            whatever you need.</p>
+          <div class="upload-card">
+            <strong>Upload your study notes</strong>
+            <p>Upload a plain text file (.txt). Once uploaded, the AI will prioritize these notes and answer questions mainly with respect to them.</p>
+            <input type="file" id="upload-input-welcome" accept=".txt" class="input file-input" />
+            <button class="qs-btn" id="upload-welcome-btn">📤 Upload Notes</button>
+            <div id="upload-welcome-status" class="hint-box" style="display:none; margin-top: 4px;"></div>
+            <div id="notes-badge-welcome" class="hint-box" style="display:none; margin-top: 8px; border: 1px dashed var(--accent3); background: rgba(82, 232, 160, 0.05); color: var(--accent3);"></div>
+          </div>
+          <div class="quick-starts" id="quick-starts"></div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div id="input-bar">
+        <textarea id="user-input" placeholder="Ask me anything…" rows="1"></textarea>
+        <button id="send-btn" title="Send (Enter)">➤</button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- PODCASTS SECTION -->
+  <div id="podcasts-section" class="feature-section" style="display:none;">
+    <div class="section-container">
+      <div class="feature-header">
+        <h2>🎧 Podcast Generator</h2>
+        <p>Use your last chat question to create a spoken podcast answer.</p>
+      </div>
+      <div class="podcast-input">
+        <textarea id="podcast-input" placeholder="Leave blank to use your last chat question" rows="2"></textarea>
+        <button id="generate-podcast-btn" class="btn-primary">🎙️ Generate Podcast Audio</button>
+      </div>
+      <div id="podcast-output" class="feature-output"></div>
+    </div>
+  </div>
+
+  <!-- FLASHCARDS SECTION -->
+  <div id="flashcards-section" class="feature-section" style="display:none;">
+    <div class="section-container">
+      <div class="feature-header">
+        <h2>🎯 Flashcard Generator</h2>
+        <p>Create flashcards from your last chat question. Click a card to flip it.</p>
+      </div>
+      <div class="flashcard-input">
+        <textarea id="flashcard-input" placeholder="Leave blank to use your last chat question" rows="2"></textarea>
+        <button id="generate-flashcard-btn" class="btn-primary">📇 Generate Flashcards</button>
+      </div>
+      <div id="flashcards-output" class="flashcards-container"></div>
+    </div>
+  </div>
+
+  <!-- QUIZ SECTION -->
+  <div id="quiz-section" class="feature-section" style="display:none;">
+    <div class="section-container">
+      <div class="feature-header">
+        <h2>❓ Quiz Generator</h2>
+        <p>Create a quiz from your last chat question and test yourself.</p>
+      </div>
+      <div class="quiz-input">
+        <textarea id="quiz-input" placeholder="Leave blank to use your last chat question" rows="2"></textarea>
+        <button id="generate-quiz-btn" class="btn-primary">✍️ Generate Quiz</button>
+      </div>
+      <div id="quiz-output" class="quiz-container"></div>
+    </div>
+  </div>
+
+  <!-- CROSSCHECK SECTION -->
+  <div id="crosscheck-section" class="feature-section" style="display:none;">
+    <div class="section-container">
+      <div class="feature-header">
+        <h2>🧪 Crosscheck</h2>
+        <p>Upload your question and your answer below. The AI will check the answer, explain where it may be wrong, show how to fix it, and reveal the correct response.</p>
+      </div>
+      <div class="crosscheck-input">
+        <label style="font-size:.85rem; font-weight:700; color:#999; margin-bottom:6px; display:block;">Your Question</label>
+        <textarea id="crosscheck-question-input" placeholder="Paste your question here" rows="3"></textarea>
+        <label style="font-size:.85rem; font-weight:700; color:#999; margin-bottom:6px; display:block; margin-top:12px;">Your Answer</label>
+        <textarea id="crosscheck-answer-input" placeholder="Paste the answer you wrote here" rows="4"></textarea>
+        <button id="generate-crosscheck-btn" class="btn-primary">🧠 Review Answer</button>
+      </div>
+      <div style="margin-top:20px;">
+        <div id="crosscheck-output" class="crosscheck-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /*
+      ╔══════════════════════════════════════════════════════════════╗
+      ║      ✏️  YOUR CUSTOMISATION STARTS HERE                     ║
+      ║                                                              ║
+      ║  This section is where YOU change things!                    ║
+      ║  Everything below the CONFIG section runs automatically.     ║
+      ╚══════════════════════════════════════════════════════════════╝
+    
+      HOW THIS APP WORKS (the big picture):
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      1. You type a message in the chat box
+      2. JavaScript sends your message to our Python server (app.py)
+      3. The server sends it to Google's Gemini AI
+      4. Gemini thinks and sends back a reply
+      5. JavaScript shows the reply in a chat bubble
+    
+      Think of it like texting:
+        You → Phone → Cell Tower → Friend → Cell Tower → Phone → You
+        You → Browser → Server → Gemini AI → Server → Browser → You
+    */
+
+
+    // =====================================================================
+    //  CONFIG — This is like a settings menu for your buddy!
+    //  Change any of these values to customize your study buddy.
+    // =====================================================================
+
+    const CONFIG = {
+
+      // 🤖 Buddy name — this shows up in the welcome message
+      //    Change it to whatever you want! "Zara", "Max", "Einstein"...
+      buddyName: "Nova",
+
+      //  Subject chips — these are the clickable buttons on the welcome screen
+      //    Add or remove subjects to match what you study!
+      subjects: [
+        "Math", "Geo", "Hindi", "Physics", "English Grammar"
+      ],
+
+      // ⚡ Quick-start prompts — pre-written questions shown on the welcome screen
+      //    Clicking one instantly sends it as your first message.
+      //    Change these to questions YOU actually want to ask!
+      quickStarts: [
+        "Explain Newton's laws with examples",
+        "Quiz me on Algebra chapter 2",
+        "Summarise the French Revolution",
+        "Help me with quadratic equations",
+        "What's photosynthesis in simple terms?",
+      ],
+
+      // 🤖 AI model — this tells the server which Gemini model to use
+      //    "gemini-2.5-flash" is the correct model for your API key.
+      model: "gemini-2.5-flash",
+    };
+
+
+    /*
+      ╔══════════════════════════════════════════════════════════════╗
+      ║       🔧  ENGINE — Everything below runs automatically      ║
+      ║                                                              ║
+      ║  You DON'T need to edit anything below this line.            ║
+      ║  But if you're curious, every line is commented!             ║
+      ╚══════════════════════════════════════════════════════════════╝
+    */
+
+
+    // =====================================================================
+    //  STATE — Variables that keep track of what's happening
+    // =====================================================================
+
+    let history = [];
+    // ^ "history" stores every message in the conversation.
+    //   It's a list (array) of objects that look like:
+    //     { role: "user",      content: "What is gravity?" }
+    //     { role: "assistant", content: "Gravity is a force that..." }
+    //   We send this to the server so the AI remembers the whole conversation.
+
+    let isLoading = false;
+    // ^ This is a true/false flag. When true, it means we're waiting
+    //   for the AI to respond. We use it to prevent sending multiple
+    //   messages at once (that would be chaotic!).
+
+    let notesContent = "";
+    let notesFileName = "";
+    // ^ These store the uploaded study notes content and filename so that we can send them
+    //   with our API requests to ensure the AI answers strictly from the notes.
+
+
+    // =====================================================================
+    //  LOAD SAVED SETTINGS
+    // =====================================================================
+    // localStorage is like a tiny hard drive inside your browser.
+    // When you click "Save Settings", we store your buddy name there.
+    // Next time you open the app, we load those saved settings so you
+    // don't have to re-enter them!
+
+    const savedConfig = JSON.parse(localStorage.getItem("sb_config") || "{}");
+    // ^ Try to load saved settings from the browser.
+    //   JSON.parse converts a text string back into a JavaScript object.
+    //   If nothing was saved yet, we get an empty object {}.
+
+    const cfg = { ...CONFIG, ...savedConfig };
+    // ^ This MERGES the default CONFIG with any saved settings.
+    //   The "..." is called the "spread operator" — it unpacks an object.
+    //   If you saved a custom buddyName, it overrides the default one.
+    //   If you didn't save anything, the defaults from CONFIG are used.
+
+
+    // =====================================================================
+    //  DOM REFERENCES — Grabbing HTML elements so we can control them
+    // =====================================================================
+    // "DOM" = Document Object Model. It's how JavaScript sees HTML.
+    // document.getElementById("some-id") finds the HTML element with that id.
+    // We store them in variables so we can use them later without
+    // searching the page every time.
+
+    const messagesEl = document.getElementById("messages");
+    // ^ The scrollable area where chat bubbles appear
+
+    const userInputEl = document.getElementById("user-input");
+    // ^ The text box where you type your message
+
+    const sendBtn = document.getElementById("send-btn");
+    // ^ The ➤ send button
+
+    const welcomeEl = document.getElementById("welcome");
+    // ^ The welcome screen with the big robot icon
+
+    const quickStartsEl = document.getElementById("quick-starts");
+    // ^ The container for quick-start prompt buttons
+
+    const sidebarEl = document.getElementById("sidebar");
+    // ^ The settings panel on the left
+
+    const buddyNameEl = document.getElementById("buddy-name-input");
+    // ^ The text input for the buddy's name in settings
+
+    const chipsEl = document.getElementById("subject-chips-container");
+    // ^ The container for subject chips (Maths, Physics, etc.)
+
+    const welcomeTitle = document.getElementById("welcome-title");
+    // ^ The "Hey! I'm Nova 👋" heading
+
+    const welcomeDesc = document.getElementById("welcome-desc");
+    // ^ The description text under the welcome heading
+
+
+    // =====================================================================
+    //  INIT — Set up the page when it first loads
+    // =====================================================================
+
+    function init() {
+      // Set the welcome message to use the buddy's name:
+      welcomeTitle.textContent = `Hey! I'm ${cfg.buddyName} 👋`;
+      // ^ Template literal (backticks ` `) let us insert variables with ${...}
+
+      welcomeDesc.textContent = "Ask me anything about your syllabus. I'll explain, quiz you, or help you revise — whatever you need!";
+
+      // ── Create quick-start buttons ──
+      quickStartsEl.innerHTML = "";
+      // ^ Clear out any old buttons first
+
+      cfg.quickStarts.forEach(qs => {
+        // ^ .forEach() loops through each item in the array.
+        //   "qs" is the current quick-start text, like "Explain Newton's laws..."
+
+        const btn = document.createElement("button");
+        // ^ Create a new <button> element (it's not on the page yet!)
+
+        btn.className = "qs-btn";
+        // ^ Give it the CSS class "qs-btn" so it looks nice
+
+        btn.textContent = qs;
+        // ^ Set the button's text to the quick-start prompt
+
+        btn.onclick = () => sendMessage(qs);
+        // ^ When clicked, send that prompt as a chat message!
+        //   The "() =>" is an "arrow function" — a short way to write a function.
+
+        quickStartsEl.appendChild(btn);
+        // ^ Actually add the button to the page (append = add to the end)
+      });
+
+      // ── Fill in the settings sidebar with current values ──
+      buddyNameEl.value = cfg.buddyName;
+      // ^ Put the buddy name into the name input
+
+      // ── Create subject chips ──
+      chipsEl.innerHTML = "";
+      // ^ Clear old chips
+
+      cfg.subjects.forEach(s => {
+        // ^ Loop through each subject name
+
+        const c = document.createElement("span");
+        // ^ Create a <span> element for each chip
+
+        c.className = "chip active";
+        // ^ Make it look like an active chip (highlighted)
+
+        c.textContent = s;
+        // ^ Set the chip text to the subject name
+
+        c.onclick = () => c.classList.toggle("active");
+        // ^ When clicked, toggle the "active" class on/off.
+        //   "toggle" means: if it's active, deactivate it. If inactive, activate it.
+
+        chipsEl.appendChild(c);
+        // ^ Add the chip to the page
+      });
+
+      // Make the text input auto-resize when you type:
+      autoGrow(userInputEl);
+    }
+
+    function showUploadStatus(el, message, isError = false) {
+      el.textContent = message;
+      el.style.display = "block";
+      el.style.color = isError ? "#ff7eb6" : "#52e8a0";
+    }
+
+    function updateNotesIndicators() {
+      const headerBadge = document.getElementById("header-notes-badge");
+      const welcomeBadge = document.getElementById("notes-badge-welcome");
+      
+      if (notesContent) {
+        const sizeText = (notesContent.length / 1024).toFixed(1) + " KB";
+        const text = `📝 Prioritizing notes: "${notesFileName}" (${sizeText})`;
+        
+        if (headerBadge) {
+          headerBadge.textContent = `📝 Notes Mode: ${notesFileName.slice(0, 15)}${notesFileName.length > 15 ? '...' : ''}`;
+          headerBadge.style.display = "inline-flex";
+        }
+        if (welcomeBadge) {
+          welcomeBadge.textContent = text;
+          welcomeBadge.style.display = "block";
+          welcomeBadge.style.color = "#52e8a0";
+        }
+      } else {
+        if (headerBadge) {
+          headerBadge.style.display = "none";
+        }
+        if (welcomeBadge) {
+          welcomeBadge.style.display = "none";
+        }
+      }
+    }
+
+    function readTextFile(inputEl, statusEl) {
+      const file = inputEl.files[0];
+      if (!file) {
+        showUploadStatus(statusEl, "Please choose a .txt file first.", true);
+        return;
+      }
+      if (!file.name.toLowerCase().endsWith(".txt")) {
+        showUploadStatus(statusEl, "Only .txt files are supported.", true);
+        return;
+      }
+
+      // Max size limit: 2MB to prevent crash/DoS
+      const maxSizeBytes = 2 * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        showUploadStatus(statusEl, "File is too large. Maximum size is 2MB.", true);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        notesContent = reader.result;
+        notesFileName = file.name;
+        
+        // Show success status
+        showUploadStatus(statusEl, `Loaded notes successfully (${(file.size / 1024).toFixed(1)} KB). AI will prioritize your notes.`);
+        
+        // Update both indicators
+        updateNotesIndicators();
+
+        // Sync inputs if applicable
+        const welcomeInput = document.getElementById("upload-input-welcome");
+        const sidebarInput = document.getElementById("upload-input-sidebar");
+        const welcomeStatus = document.getElementById("upload-welcome-status");
+        const sidebarStatusEl = document.getElementById("upload-sidebar-status");
+        
+        const successMsg = `Loaded notes: ${notesFileName}`;
+        if (statusEl === welcomeStatus && sidebarStatusEl) {
+          showUploadStatus(sidebarStatusEl, successMsg);
+        } else if (statusEl === sidebarStatusEl && welcomeStatus) {
+          showUploadStatus(welcomeStatus, successMsg);
+        }
+      };
+      reader.onerror = () => {
+        showUploadStatus(statusEl, "Unable to read the file.", true);
+      };
+      reader.readAsText(file, "UTF-8");
+    }
+
+
+    // =====================================================================
+    //  SAVE SETTINGS — What happens when you click "💾 Save Settings"
+    // =====================================================================
+
+    document.getElementById("save-settings-btn").onclick = () => {
+      // Read the current values from the settings inputs:
+      cfg.buddyName = buddyNameEl.value.trim() || "Nova";
+      // ^ If the name is empty, default to "Nova"
+      //   The "||" means "or" — if the left side is empty/false, use the right side
+
+      // Save to localStorage so settings persist when you reload the page:
+      localStorage.setItem("sb_config", JSON.stringify({
+        buddyName: cfg.buddyName,
+      }));
+      // ^ JSON.stringify converts a JavaScript object into a text string.
+      //   localStorage can only store text, not objects directly.
+
+      // Update the welcome message with the new name:
+      welcomeTitle.textContent = `Hey! I'm ${cfg.buddyName} 👋`;
+
+      // Reset the conversation history when settings change:
+      history = [];
+      // ^ This clears old messages so the next answer starts fresh.
+
+      // Show a "✅ Saved!" message that disappears after 2 seconds:
+      const saved = document.createElement("span");
+      saved.style.cssText = "color:var(--accent3);font-weight:800;font-size:.85rem";
+      saved.textContent = "✅ Saved!";
+      const btn = document.getElementById("save-settings-btn");
+      btn.after(saved);
+      // ^ .after() places the element right after the button
+
+      setTimeout(() => saved.remove(), 2000);
+      // ^ setTimeout waits 2000 milliseconds (2 seconds), then removes it.
+    };
+
+
+    // =====================================================================
+    //  NOTE: The API key is stored on the server (in the .env file).
+    //  Your brother never needs to enter it — it's handled automatically!
+    // =====================================================================
+
+
+    // =====================================================================
+    //  TOGGLE SIDEBAR — Show/hide the settings panel
+    // =====================================================================
+
+    document.getElementById("toggle-sidebar-btn").onclick = () =>
+      sidebarEl.classList.toggle("hidden");
+    // ^ Clicking the ⚙️ Settings button toggles the "hidden" CSS class,
+    //   which slides the sidebar in and out.
+
+    document.getElementById("upload-welcome-btn").onclick = () => {
+      const inputEl = document.getElementById("upload-input-welcome");
+      const statusEl = document.getElementById("upload-welcome-status");
+      readTextFile(inputEl, statusEl);
+    };
+
+    document.getElementById("upload-sidebar-btn").onclick = () => {
+      const inputEl = document.getElementById("upload-input-sidebar");
+      const statusEl = document.getElementById("upload-sidebar-status");
+      readTextFile(inputEl, statusEl);
+    };
+
+
+    // =====================================================================
+    //  CLEAR CHAT — Erase all messages and start fresh
+    // =====================================================================
+
+    document.getElementById("clear-btn").onclick = () => {
+      history = [];
+      // ^ Empty the conversation history
+
+      messagesEl.innerHTML = "";
+      // ^ Remove all chat bubbles from the page
+
+      // Reset notes content and file inputs/statuses
+      notesContent = "";
+      notesFileName = "";
+      updateNotesIndicators();
+      
+      const welcomeInput = document.getElementById("upload-input-welcome");
+      if (welcomeInput) welcomeInput.value = "";
+      const sidebarInput = document.getElementById("upload-input-sidebar");
+      if (sidebarInput) sidebarInput.value = "";
+      
+      const welcomeStatus = document.getElementById("upload-welcome-status");
+      if (welcomeStatus) welcomeStatus.style.display = "none";
+      const sidebarStatusEl = document.getElementById("upload-sidebar-status");
+      if (sidebarStatusEl) sidebarStatusEl.style.display = "none";
+
+      welcomeEl.style.display = "flex";
+      messagesEl.appendChild(welcomeEl);
+      // ^ Bring back the welcome screen
+    };
+
+
+    // =====================================================================
+    //  AUTO-GROW TEXTAREA — Makes the input box grow as you type more lines
+    // =====================================================================
+
+    function autoGrow(el) {
+      el.style.height = "auto";
+      // ^ Reset height so we can measure the real content height
+
+      el.style.height = Math.min(el.scrollHeight, 140) + "px";
+      // ^ Set height to the content height, but cap it at 140px max.
+      //   Math.min(a, b) returns whichever is smaller.
+    }
+
+    userInputEl.addEventListener("input", () => autoGrow(userInputEl));
+    // ^ Every time you type something, re-calculate the height.
+    //   "input" event fires whenever the text changes.
+
+
+    // =====================================================================
+    //  KEYBOARD SHORTCUT — Press Enter to send, Shift+Enter for new line
+    // =====================================================================
+
+    userInputEl.addEventListener("keydown", e => {
+      // ^ "keydown" fires when you press ANY key
+
+      if (e.key === "Enter" && !e.shiftKey) {
+        // ^ If you pressed Enter WITHOUT holding Shift:
+
+        e.preventDefault();
+        // ^ Prevent the default behavior (which would add a new line)
+
+        triggerSend();
+        // ^ Send the message instead!
+      }
+      // If you're holding Shift + Enter, nothing special happens —
+      // the default behavior (new line) occurs naturally.
+    });
+
+    sendBtn.onclick = triggerSend;
+    // ^ Clicking the ➤ button also sends the message
+
+
+    // =====================================================================
+    //  TRIGGER SEND — Validates input and calls sendMessage
+    // =====================================================================
+
+    function triggerSend() {
+      const text = userInputEl.value.trim();
+      // ^ Get the text from the input box (trimmed of extra spaces)
+
+      if (!text || isLoading) return;
+      // ^ If the input is empty OR we're already waiting for a reply,
+      //   do nothing. "return" exits the function early.
+
+      sendMessage(text);
+      // ^ Send the message to the AI!
+
+      userInputEl.value = "";
+      // ^ Clear the input box after sending
+
+      autoGrow(userInputEl);
+      // ^ Shrink the input box back to normal size
+    }
+
+
+    // =====================================================================
+    //  SEND MESSAGE — The main function! Sends your message to the server
+    //                 and shows the AI's response.
+    // =====================================================================
+    // "async" means this function can WAIT for things (like server responses)
+    // without freezing the entire page. It's like placing an order at a
+    // restaurant — you don't stand at the counter staring; you sit down
+    // and wait for your food to arrive.
+
+    async function sendMessage(text) {
+
+      // ── Hide the welcome screen ──
+      if (welcomeEl.parentElement) welcomeEl.remove();
+      // ^ If the welcome screen is still showing, remove it.
+      //   .parentElement checks if it's attached to the page.
+
+      // ── Show the user's message as a chat bubble ──
+      appendBubble("user", text);
+      // ^ This creates a chat bubble on the right side (user style)
+
+      history.push({ role: "user", content: text });
+      // ^ Add this message to our conversation history.
+      //   .push() adds an item to the end of an array.
+      //   We track roles so the AI knows who said what.
+
+      // ── Show the "typing..." animation ──
+      const typingId = appendTyping();
+      // ^ Creates the bouncing dots animation (🤖 ...)
+      //   Returns an ID so we can remove it later.
+
+      isLoading = true;
+      // ^ Flag that we're waiting — prevents sending more messages
+
+      sendBtn.disabled = true;
+      // ^ Grey out the send button while waiting
+
+      // ── Send the message to our Python server ──
+      try {
+        // "try" means: "attempt this code, and if anything goes wrong,
+        //  jump to the 'catch' block instead of crashing."
+
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: history,
+            model: cfg.model,
+            notes: notesContent,
+          }),
+        });
+        // ^ fetch() sends an HTTP request to our server.
+        //
+        //   "/api/chat" = the URL of our server's chat endpoint
+        //                 (defined in app.py)
+        //
+        //   method: "POST" = we're SENDING data (not just asking for a page)
+        //
+        //   headers = metadata about our request
+        //     "Content-Type: application/json" tells the server
+        //     "hey, I'm sending you JSON data"
+        //
+        //   body = the actual data we're sending:
+        //     - messages: the full conversation history
+        //     - model: which Gemini model to use
+        //
+        //   JSON.stringify() converts our JavaScript object into a JSON string
+        //   because fetch can only send text, not raw objects.
+        //
+        //   "await" means "wait here until the server responds".
+        //   Without await, the code would keep running before we get a response!
+
+        // ── Remove the typing animation ──
+        removeTyping(typingId);
+
+        // ── Read the server's response ──
+        const data = await res.json();
+        // ^ Convert the server's response from JSON text back into
+        //   a JavaScript object. This is the reverse of JSON.stringify().
+
+        // ── Check if something went wrong ──
+        if (!res.ok) {
+          // ^ res.ok is true if the server returned a success code (200).
+          //   If it's false, something went wrong (bad key, server error, etc.)
+
+          const msg = data?.error || `Server error ${res.status}`;
+          // ^ data?.error uses "optional chaining" (?.) which means:
+          //   "if data exists AND has an error property, use it.
+          //    Otherwise, use the fallback message."
+
+          appendBubble("ai", `❌ **Error:** ${msg}`);
+          // ^ Show the error in a chat bubble
+
+          return;
+          // ^ Exit the function early — don't try to show a reply
+        }
+
+        // ── Show the AI's reply ──
+        const reply = data.reply || "(no response)";
+        // ^ Get the reply text from the server's response.
+        //   If for some reason it's empty, show "(no response)".
+
+        appendBubble("ai", reply);
+        // ^ Show the AI's reply as a chat bubble on the left side
+
+        history.push({ role: "assistant", content: reply });
+        // ^ Add the AI's reply to our conversation history
+        //   so the AI remembers what it said in future messages.
+        // Update the Crosscheck list so this new answer is selectable
+        try { if (document.getElementById('crosscheck-list')) populateCrosscheckAnswers(); } catch(e) { /* ignore */ }
+
+      } catch (err) {
+        // ── If something went REALLY wrong (like the server is off) ──
+        // "catch" runs if fetch() itself failed (network error, server down, etc.)
+
+        removeTyping(typingId);
+        // ^ Remove the typing animation
+
+        appendBubble("ai", `❌ **Network error:** ${err.message}\n\nMake sure the server is running (python app.py).`);
+        // ^ Show a helpful error message
+
+      } finally {
+        // ── This ALWAYS runs, whether the request succeeded or failed ──
+        // "finally" is like saying "no matter what happened, do this cleanup."
+
+        isLoading = false;
+        // ^ We're done loading — allow sending new messages
+
+        sendBtn.disabled = false;
+        // ^ Re-enable the send button
+
+        userInputEl.focus();
+        // ^ Put the cursor back in the input box so the user can
+        //   immediately type their next message
+      }
+    }
+
+
+    // =====================================================================
+    //  APPEND BUBBLE — Creates a chat message bubble on screen
+    // =====================================================================
+    // Parameters:
+    //   role = "user" or "ai" (determines the style — right side or left side)
+    //   text = the message text to display
+
+    function appendBubble(role, text) {
+      // Create the outer container for the message:
+      const msg = document.createElement("div");
+      msg.className = `msg ${role}`;
+      // ^ If role is "user", className becomes "msg user"
+      //   If role is "ai", className becomes "msg ai"
+      //   CSS styles these differently (user = right side, ai = left side)
+
+      // Create the avatar (the little icon next to the message):
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = role === "user" ? "🧑" : "🤖";
+      // ^ "condition ? valueIfTrue : valueIfFalse" is a ternary operator.
+      //   It's a shortcut for an if/else statement.
+      //   If user → show 🧑, if AI → show 🤖
+
+      // Create the bubble (the actual message box):
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      const stepSections = role === "ai" ? parseStepSections(text) : null;
+      if (stepSections) {
+        bubble.appendChild(createStepFlow(stepSections));
+      } else {
+        bubble.innerHTML = renderMarkdown(text);
+      }
+
+      if (role === "ai") {
+        const actions = document.createElement("div");
+        actions.className = "bubble-actions";
+
+        const podcastBtn = document.createElement("button");
+        podcastBtn.className = "step-btn secondary";
+        podcastBtn.type = "button";
+        podcastBtn.textContent = "🎧 Podcast";
+        podcastBtn.onclick = () => {
+          generatePodcastFromAnswer(text);
+        };
+
+        const flashBtn = document.createElement("button");
+        flashBtn.className = "step-btn secondary";
+        flashBtn.type = "button";
+        flashBtn.textContent = "🎯 Flashcards";
+        flashBtn.onclick = () => {
+          generateFlashcardsFromAnswer(text);
+        };
+
+        const quizBtn = document.createElement("button");
+        quizBtn.className = "step-btn secondary";
+        quizBtn.type = "button";
+        quizBtn.textContent = "❓ Quiz";
+        quizBtn.onclick = () => {
+          generateQuizFromAnswer(text);
+        };
+
+        const crosscheckBtn = document.createElement("button");
+        crosscheckBtn.className = "step-btn secondary";
+        crosscheckBtn.type = "button";
+        crosscheckBtn.textContent = "🧪 Crosscheck";
+        crosscheckBtn.onclick = () => {
+          generateCrosscheck(text);
+        };
+
+        const hintNextBtn = document.createElement("button");
+        hintNextBtn.className = "step-btn secondary";
+        hintNextBtn.type = "button";
+        hintNextBtn.textContent = "💡 Hint for next step";
+        hintNextBtn.onclick = () => {
+          sendMessage(`Hint for the next step based on the previous assistant answer:\n\n${text}`);
+        };
+
+        const moveNextBtn = document.createElement("button");
+        moveNextBtn.className = "step-btn secondary";
+        moveNextBtn.type = "button";
+        moveNextBtn.textContent = "➡️ Move to next step";
+        moveNextBtn.onclick = () => {
+          sendMessage(`Move to the next step based on the previous assistant answer:\n\n${text}`);
+        };
+
+        const simplerBtn = document.createElement("button");
+        simplerBtn.className = "step-btn secondary";
+        simplerBtn.type = "button";
+        simplerBtn.textContent = "🔁 Re-explain in simpler terms";
+        simplerBtn.onclick = () => {
+          sendMessage(`Re-explain the previous assistant answer in simpler terms:\n\n${text}`);
+        };
+
+        actions.appendChild(podcastBtn);
+        actions.appendChild(flashBtn);
+        actions.appendChild(quizBtn);
+        actions.appendChild(crosscheckBtn);
+        actions.appendChild(hintNextBtn);
+        actions.appendChild(moveNextBtn);
+        actions.appendChild(simplerBtn);
+        bubble.appendChild(actions);
+      }
+      // ^ renderMarkdown() converts plain text into formatted HTML.
+      //   For example, **bold** becomes <strong>bold</strong>.
+      //   We use innerHTML (not textContent) because we want the HTML to render.
+
+      // Put the pieces together and add to the page:
+      msg.appendChild(avatar);   // Add avatar inside the message
+      msg.appendChild(bubble);   // Add bubble inside the message
+      messagesEl.appendChild(msg); // Add the whole message to the chat area
+      scrollBottom();             // Scroll down so the new message is visible
+      return msg;
+    }
+
+
+    // =====================================================================
+    //  TYPING ANIMATION — Shows the "..." bouncing dots while AI thinks
+    // =====================================================================
+
+    let typingCounter = 0;
+    // ^ A counter to give each typing indicator a unique ID.
+    //   This way we can remove the correct one when the AI responds.
+
+    function appendTyping() {
+      const id = "typing-" + (++typingCounter);
+      // ^ Create a unique ID like "typing-1", "typing-2", etc.
+      //   "++" increments the counter by 1 before using it.
+
+      const msg = document.createElement("div");
+      msg.className = "msg ai";
+      msg.id = id;
+      // ^ Give it the ID so we can find and remove it later
+
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.textContent = "🤖";
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div>`;
+      // ^ Three empty <span> elements that CSS animates into bouncing dots
+
+      msg.appendChild(avatar);
+      msg.appendChild(bubble);
+      messagesEl.appendChild(msg);
+      scrollBottom();
+      return id;
+      // ^ Return the ID so the caller can pass it to removeTyping() later
+    }
+
+    function removeTyping(id) {
+      document.getElementById(id)?.remove();
+      // ^ Find the typing indicator by ID and remove it from the page.
+      //   The "?." (optional chaining) means: "if it exists, remove it.
+      //   If it's already gone, don't crash."
+    }
+
+    function scrollBottom() {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      // ^ Scroll the messages container to the very bottom.
+      //   scrollHeight = total height of all content
+      //   scrollTop = how far down we've scrolled
+      //   Setting scrollTop = scrollHeight means "scroll all the way down"
+    }
+
+
+    // =====================================================================
+    //  MARKDOWN RENDERER — Converts plain text into pretty formatted HTML
+    // =====================================================================
+    // Markdown is a simple way to format text:
+    //   **bold**     → bold text
+    //   *italic*     → italic text
+    //   `code`       → code style
+    //   # Heading    → big heading
+    //   - item       → bullet point
+    //   ```code```   → code block
+    //
+    // This function takes markdown text and converts it to HTML
+    // so the browser can display it with proper formatting.
+
+    function renderMarkdown(md) {
+      let html = escapeHtml(md);
+      // ^ First, escape any special HTML characters (like < and >)
+      //   so they display as text instead of being treated as HTML tags.
+      //   This prevents security issues (XSS attacks).
+
+      // Replace markdown patterns with HTML using Regular Expressions (regex):
+      // Regex is a pattern-matching language. The /pattern/flags syntax defines one.
+      // Don't worry if regex looks like alien code — it takes time to learn!
+
+      // ── Code blocks (```) ──
+      html = html.replace(/```[\w]*\n?([\s\S]*?)```/g, (_, c) =>
+        `<pre><code>${c.trim()}</code></pre>`);
+      // ^ Finds text wrapped in triple backticks and wraps it in <pre><code>
+
+      // ── Inline code (single `) ──
+      html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+      // ^ Finds text wrapped in single backticks → <code>
+
+      // ── Bold (**text**) ──
+      html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+
+      // ── Italic (*text*) ──
+      html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
+
+      // ── Headings (# ## ###) ──
+      html = html.replace(/^### (.+)$/gm, "<h3>$1</h3>");
+      html = html.replace(/^## (.+)$/gm, "<h2>$1</h2>");
+      html = html.replace(/^# (.+)$/gm, "<h1>$1</h1>");
+
+      // ── Blockquotes (> text) ──
+      html = html.replace(/^&gt; (.+)$/gm, "<blockquote>$1</blockquote>");
+
+      // ── Horizontal rules (---) ──
+      html = html.replace(/^---$/gm, "<hr/>");
+
+      // ── Unordered lists (- item or * item) ──
+      html = html.replace(/^[\*\-] (.+)$/gm, "<li>$1</li>");
+      html = html.replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>");
+
+      // ── Ordered lists (1. item) ──
+      html = html.replace(/^\d+\. (.+)$/gm, "<li>$1</li>");
+
+      // ── Paragraphs ──
+      html = html.replace(/\n\n/g, "</p><p>");
+      // ^ Double newlines become paragraph breaks
+
+      html = html.replace(/\n/g, "<br/>");
+      // ^ Single newlines become line breaks
+
+      html = "<p>" + html + "</p>";
+      // ^ Wrap everything in a paragraph tag
+
+      // ── Clean up empty or misplaced tags ──
+      html = html.replace(/<p><\/p>/g, "");
+      html = html.replace(/<p>(<(?:pre|ul|ol|h[123]|hr|blockquote))/g, "$1");
+      html = html.replace(/(<\/(?:pre|ul|ol|h[123]|hr|blockquote)>)<\/p>/g, "$1");
+
+      return html;
+    }
+
+    function parseStepSections(text) {
+      const pieces = text.split(/(?=^Step\s*\d+[:\)])/gim).map(s => s.trim()).filter(Boolean);
+      if (pieces.length < 2) return null;
+
+      return pieces.map(piece => {
+        const lines = piece.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const title = lines[0] || "Step";
+        const hintLine = lines.find(l => /^Hint[:\-]/i.test(l));
+        const hint = hintLine ? hintLine.replace(/^Hint[:\-]\s*/i, "") : "If you need help, read the step again and try the key idea slowly.";
+        const contentLines = lines.filter(l => !/^Hint[:\-]/i.test(l));
+        return {
+          title,
+          content: contentLines.slice(1).join("\n"),
+          hint,
+        };
+      });
+    }
+
+    function createStepFlow(steps) {
+      const container = document.createElement("div");
+
+      steps.forEach((step, index) => {
+        const card = document.createElement("div");
+        card.className = "step-card";
+
+        const title = document.createElement("div");
+        title.className = "step-title";
+        title.textContent = step.title;
+
+        const content = document.createElement("div");
+        content.className = "step-content";
+        content.textContent = step.content;
+        if (index !== 0) content.style.display = "none";
+
+        const hint = document.createElement("div");
+        hint.className = "step-hint";
+        hint.textContent = step.hint;
+        hint.style.display = "none";
+
+        const controls = document.createElement("div");
+        controls.className = "step-controls";
+
+        const nextBtn = document.createElement("button");
+        nextBtn.className = "step-btn";
+        nextBtn.textContent = index === steps.length - 1 ? "Finish" : "Next step";
+        nextBtn.onclick = () => {
+          hint.style.display = "none";
+          if (index < steps.length - 1) {
+            const nextCard = card.nextElementSibling;
+            if (nextCard) {
+              nextCard.querySelector(".step-content").style.display = "block";
+              nextCard.querySelector(".step-controls").style.display = "flex";
+              card.querySelector(".step-controls").style.display = "none";
+            }
+          } else {
+            nextBtn.textContent = "Completed";
+            nextBtn.disabled = true;
+          }
+        };
+
+        const hintBtn = document.createElement("button");
+        hintBtn.className = "step-btn secondary";
+        hintBtn.textContent = "Hint";
+        hintBtn.onclick = () => {
+          hint.style.display = hint.style.display === "block" ? "none" : "block";
+        };
+
+        const askBtn = document.createElement("button");
+        askBtn.className = "step-btn secondary";
+        askBtn.textContent = "Ask question";
+        askBtn.onclick = () => {
+          userInputEl.focus();
+        };
+
+        controls.appendChild(nextBtn);
+        controls.appendChild(hintBtn);
+        controls.appendChild(askBtn);
+
+        if (index !== 0) {
+          controls.style.display = "none";
+        }
+
+        card.appendChild(title);
+        card.appendChild(content);
+        card.appendChild(hint);
+        card.appendChild(controls);
+        container.appendChild(card);
+      });
+
+      return container;
+    }
+
+
+    // =====================================================================
+    //  ESCAPE HTML — Security function to prevent code injection
+    // =====================================================================
+    // If someone typed "<script>alert('hacked')<\/script>" in the chat,
+    // we don't want the browser to actually run that as code!
+    // This function converts dangerous characters into safe versions:
+    //   < becomes &lt;   (browser shows "<" but doesn't treat it as HTML)
+    //   > becomes &gt;
+    //   & becomes &amp;
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+
+    // =====================================================================
+    //  BOOT — Start the app!
+    // =====================================================================
+    // This is the very last line. It calls init() which sets up the entire
+    // page — welcome message, quick-start buttons, subject chips, etc.
+    // Think of it as pressing the power button. ⚡
+
+    // =====================================================================
+    //  FEATURE TAB HANDLING
+    // =====================================================================
+
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const chatArea = document.getElementById("chat-area");
+    const podcastsSection = document.getElementById("podcasts-section");
+    const flashcardsSection = document.getElementById("flashcards-section");
+    const quizSection = document.getElementById("quiz-section");
+    const crosscheckSection = document.getElementById("crosscheck-section");
+    const crosscheckOutputEl = document.getElementById("crosscheck-output");
+    const crosscheckQuestionEl = document.getElementById("crosscheck-question-input");
+    const crosscheckAnswerEl = document.getElementById("crosscheck-answer-input");
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        // Remove active class from all buttons
+        tabButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        // Hide all sections
+        chatArea.style.display = "none";
+        podcastsSection.style.display = "none";
+        flashcardsSection.style.display = "none";
+        quizSection.style.display = "none";
+        crosscheckSection.style.display = "none";
+
+        // Show the selected section
+        const tab = btn.dataset.tab;
+        if (tab === "chat") chatArea.style.display = "flex";
+        else if (tab === "podcasts") podcastsSection.style.display = "flex";
+        else if (tab === "flashcards") flashcardsSection.style.display = "flex";
+        else if (tab === "quiz") quizSection.style.display = "flex";
+        else if (tab === "crosscheck") {
+          crosscheckSection.style.display = "flex";
+        }
+      });
+    });
+
+    function getLatestUserPrompt() {
+      const lastUserMessage = [...history].reverse().find(msg => msg.role === "user");
+      return lastUserMessage ? lastUserMessage.content.trim() : "";
+    }
+
+    function resolveFeaturePrompt(rawInput) {
+      const cleaned = rawInput.trim();
+      return cleaned || getLatestUserPrompt();
+    }
+
+    function buildMessagesWithPrompt(prompt) {
+      const cleaned = prompt.trim();
+      const messages = [...history];
+      if (cleaned) {
+        messages.push({ role: "user", content: cleaned });
+      }
+      return messages;
+    }
+
+    function getLatestAssistantReply() {
+      const lastAssistant = [...history].reverse().find(msg => msg.role === "assistant");
+      return lastAssistant ? lastAssistant.content.trim() : "";
+    }
+
+    function populateCrosscheckAnswers() {
+      const listEl = document.getElementById('crosscheck-list');
+      if (!listEl) return;
+      listEl.innerHTML = '';
+      const assistantMsgs = history.filter(m => m.role === 'assistant');
+      if (!assistantMsgs.length) {
+        listEl.innerHTML = '<div class="hint-box">No assistant answers yet.</div>';
+        return;
+      }
+
+      assistantMsgs.forEach((m, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-primary';
+        btn.style.cssText = 'width:100%; text-align:left; padding:8px 10px;';
+        // show a short preview only (do not reveal full script)
+        const preview = m.content.replace(/\s+/g,' ').trim().slice(0,120);
+        btn.textContent = preview + (m.content.length > 120 ? '…' : '');
+        btn.title = 'Click to run crosscheck for this answer';
+        btn.onclick = () => {
+          // generate crosscheck for this assistant answer (keeps script hidden)
+          generateCrosscheck(m.content, true);
+        };
+        listEl.appendChild(btn);
+      });
+    }
+
+    function resolveCrosscheckPrompt(rawInput) {
+      const cleaned = rawInput.trim();
+      return cleaned || getLatestAssistantReply();
+    }
+
+    function parseCrosscheckItems(text) {
+      const rawItems = text.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
+      return rawItems.map(raw => {
+        const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const questionLine = lines.find(l => /^Q\d*[:\-]/i.test(l)) || lines[0] || "";
+        const question = questionLine.replace(/^Q\d*[:\-]\s*/i, "").trim();
+        const options = lines.filter(l => /^[A-D]\)\s*/i.test(l)).map(l => l.trim());
+        const answerLine = lines.find(l => /^Answer[:\-]/i.test(l));
+        const correctAnswer = answerLine ? answerLine.replace(/^Answer[:\-]\s*/i, "").trim().charAt(0).toUpperCase() : "";
+        const explanationLine = lines.find(l => /^Explanation[:\-]/i.test(l));
+        const hintLine = lines.find(l => /^Hint[:\-]/i.test(l));
+        return {
+          question,
+          options,
+          correctAnswer,
+          explanation: explanationLine ? explanationLine.replace(/^Explanation[:\-]\s*/i, "").trim() : "Great work. Keep thinking through the steps and check your reasoning.",
+          hint: hintLine ? hintLine.replace(/^Hint[:\-]\s*/i, "").trim() : "Review the idea in the answer and try matching it to the question.",
+          raw,
+        };
+      });
+    }
+
+    function createCrosscheckUI(items) {
+      crosscheckOutputEl.innerHTML = "";
+      if (!items.length) {
+        crosscheckOutputEl.innerHTML = `<div style="color: var(--accent2);">No crosscheck items could be generated. Try a different question or ask for another answer in chat.</div>`;
+        return;
+      }
+
+      items.forEach((item, idx) => {
+        const card = document.createElement("div");
+        card.className = "crosscheck-item";
+
+        const title = document.createElement("div");
+        title.className = "crosscheck-question";
+        title.textContent = `${idx + 1}. ${item.question}`;
+
+        const options = document.createElement("div");
+        options.className = "crosscheck-options";
+
+        const feedback = document.createElement("div");
+        feedback.className = "crosscheck-feedback";
+        feedback.textContent = "Choose the best answer. If you're wrong, you'll get a hint and can try again.";
+
+        item.options.forEach(option => {
+          const btn = document.createElement("button");
+          btn.className = "crosscheck-choice";
+          btn.textContent = option;
+          btn.type = "button";
+
+          btn.addEventListener("click", () => {
+            if (btn.disabled) return;
+            const selectedLetter = option.charAt(0).toUpperCase();
+
+            if (selectedLetter === item.correctAnswer) {
+              options.querySelectorAll("button").forEach(b => {
+                b.disabled = true;
+                if (b.textContent.charAt(0).toUpperCase() === item.correctAnswer) {
+                  b.classList.add("correct");
+                }
+              });
+              feedback.textContent = `✅ Correct! ${item.explanation}`;
+            } else {
+              btn.classList.add("incorrect");
+              feedback.textContent = `❌ Not quite. ${item.hint}`;
+            }
+          });
+
+          options.appendChild(btn);
+        });
+
+        card.appendChild(title);
+        card.appendChild(options);
+        card.appendChild(feedback);
+        crosscheckOutputEl.appendChild(card);
+      });
+    }
+
+    async function generateCrosscheck(text, switchToTab = true) {
+      const prompt = `Using the full chat conversation and the student question and answer below, check whether the answer is correct. If the answer is wrong, explain exactly where the student likely went wrong, show how to fix it, and reveal the correct answer. Do not give hints only; provide the correct explanation clearly in English.\n\n${text}`.trim();
+      if (!prompt) return;
+      if (switchToTab) {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        const crossTab = [...document.querySelectorAll(".tab-btn")].find(b => b.dataset.tab === "crosscheck");
+        if (crossTab) crossTab.classList.add("active");
+        chatArea.style.display = "none";
+        podcastsSection.style.display = "none";
+        flashcardsSection.style.display = "none";
+        quizSection.style.display = "none";
+        crosscheckSection.style.display = "flex";
+      }
+
+      crosscheckOutputEl.innerHTML = `<div style="display:flex; align-items:center; gap:10px; min-height:120px;"><div class="loading-spinner"></div> Checking your answer...</div>`;
+
+      try {
+        const res = await fetch("/api/crosscheck", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: buildMessagesWithPrompt(prompt),
+            model: cfg.model,
+            notes: notesContent,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          crosscheckOutputEl.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data?.error || "Failed to review answer"}</div>`;
+          return;
+        }
+
+        crosscheckOutputEl.innerHTML = `<div class="crosscheck-feedback" style="white-space: pre-wrap; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,.03);">${escapeHtml(data.reply)}</div>`;
+      } catch (err) {
+        crosscheckOutputEl.innerHTML = `<div style="color: var(--accent2);">❌ Network error: ${err.message}</div>`;
+      }
+    }
+
+    async function generatePodcastFromAnswer(text, switchToTab = true) {
+      const prompt = `Using the full chat conversation and the assistant answer below, generate a short podcast-style audio script in English. Use the entire conversation as context, covering all user questions asked so far and all earlier assistant replies. Do not focus only on the latest question.\n\n${text}`.trim();
+      if (!prompt) return;
+      if (switchToTab) {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        const pTab = [...document.querySelectorAll(".tab-btn")].find(b => b.dataset.tab === "podcasts");
+        if (pTab) pTab.classList.add("active");
+        chatArea.style.display = "none";
+        podcastsSection.style.display = "flex";
+        flashcardsSection.style.display = "none";
+        quizSection.style.display = "none";
+        crosscheckSection.style.display = "none";
+      }
+
+      const output = document.getElementById("podcast-output");
+      output.innerHTML = `<div style="display:flex; align-items:center; gap:10px; min-height:120px;"><div class="loading-spinner"></div> Generating podcast audio...</div>`;
+
+      function sanitizeForSpeech(s) {
+        if (!s) return "";
+        let t = s;
+        // Preserve common programming names
+        t = t.replace(/C\+\+/g, 'C plus plus');
+        t = t.replace(/C#/g, 'C sharp');
+        // Remove URLs and emails
+        t = t.replace(/https?:\/\/\S+/gi, '');
+        t = t.replace(/\S+@\S+/g, '');
+        // Remove hash and at symbols before words (#tag -> tag, @user -> user)
+        t = t.replace(/#([A-Za-z0-9_\-]+)/g, '$1');
+        t = t.replace(/@([A-Za-z0-9_\-]+)/g, '$1');
+        // Convert percentages and dollar amounts to spoken form
+        t = t.replace(/(\d+)\%/g, '$1 percent');
+        t = t.replace(/\$([0-9.,]+)/g, '$1 dollars');
+        // Remove stray symbols except common punctuation
+          t = t.replace(/[^\w\s\.,\?\!\:\;\'\"\-\(\)\/\%\$]/g, '');
+        // Collapse whitespace
+        t = t.replace(/\s+/g, ' ').trim();
+        return t;
+      }
+
+      function pickNaturalEnglishVoice() {
+        const voices = speechSynthesis.getVoices();
+        if (!voices || !voices.length) return null;
+          // Prefer neural or high-quality voices from common providers
+          const preferNames = [/neural/i, /wave?net/i, /google/i, /microsoft/i, /amazon/i, /samantha/i, /alex/i];
+          for (const re of preferNames) {
+            const v = voices.find(v => re.test(v.name) || (v.lang && re.test(v.lang)));
+            if (v) return v;
+          }
+          // Prefer en-US voices next
+          const en = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+          if (en) return en;
+          // Fallback to first voice
+          return voices[0];
+      }
+
+      try {
+        const res = await fetch("/api/podcast", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: buildMessagesWithPrompt(prompt),
+            model: cfg.model,
+            notes: notesContent,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data?.error || "Failed to generate podcast"}</div>`;
+          return;
+        }
+
+        const rawText = data.reply || "";
+        const speakText = sanitizeForSpeech(rawText);
+        output.innerHTML = `<div style="margin-bottom:10px; color:var(--accent2);">Playing audio.</div>`;
+
+        if (!window.speechSynthesis) {
+          output.innerHTML += `<div style="color:var(--accent2);">Audio not supported in this browser.</div>`;
+          return;
+        }
+
+        // Create playback controls
+        speechSynthesis.cancel();
+        const controls = document.createElement("div");
+        controls.style.marginTop = "8px";
+
+        const pauseBtn = document.createElement("button");
+        pauseBtn.className = "step-btn secondary";
+        pauseBtn.textContent = "Pause";
+        pauseBtn.onclick = () => speechSynthesis.pause();
+
+        const resumeBtn = document.createElement("button");
+        resumeBtn.className = "step-btn secondary";
+        resumeBtn.textContent = "Resume";
+        resumeBtn.onclick = () => speechSynthesis.resume();
+
+        const stopBtn = document.createElement("button");
+        stopBtn.className = "step-btn secondary";
+        stopBtn.textContent = "Stop";
+        stopBtn.onclick = () => speechSynthesis.cancel();
+
+        controls.appendChild(pauseBtn);
+        controls.appendChild(resumeBtn);
+        controls.appendChild(stopBtn);
+        output.appendChild(controls);
+
+        // Speak using the best available voice; if voices aren't loaded yet, wait
+        const speakNow = () => {
+          const utter = new SpeechSynthesisUtterance(speakText);
+          utter.lang = 'en-US';
+          utter.rate = 1;
+          utter.pitch = 1;
+          const voice = pickNaturalEnglishVoice();
+          if (voice) utter.voice = voice;
+          speechSynthesis.cancel();
+          speechSynthesis.speak(utter);
+        };
+
+        const voices = speechSynthesis.getVoices();
+        if (!voices || voices.length === 0) {
+          // Voices not loaded yet; attach handler
+          speechSynthesis.onvoiceschanged = () => {
+            speakNow();
+          };
+        } else {
+          speakNow();
+        }
+      } catch (err) {
+        output.innerHTML = `<div style="color: var(--accent2);">❌ Network error: ${err.message}</div>`;
+      }
+    }
+
+    async function generateFlashcardsFromAnswer(text, switchToTab = true) {
+      const prompt = `Using the full chat conversation and the assistant answer below, create 5-10 flashcard Q&A pairs in English. Use the entire conversation as context, covering all prior user questions and the full discussion. Do not focus only on the latest question.\n\n${text}`.trim();
+      if (!prompt) return;
+      if (switchToTab) {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        const fTab = [...document.querySelectorAll(".tab-btn")].find(b => b.dataset.tab === "flashcards");
+        if (fTab) fTab.classList.add("active");
+        chatArea.style.display = "none";
+        podcastsSection.style.display = "none";
+        flashcardsSection.style.display = "flex";
+        quizSection.style.display = "none";
+        crosscheckSection.style.display = "none";
+      }
+
+      const output = document.getElementById("flashcards-output");
+      output.innerHTML = `<div style="grid-column: 1/-1; display: flex; justify-content: center; align-items: center; min-height: 200px;"><div class="loading-spinner" style="margin-right: 12px;"></div> Generating flashcards...</div>`;
+
+      try {
+        const res = await fetch("/api/flashcards", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: buildMessagesWithPrompt(prompt),
+            model: cfg.model,
+            notes: notesContent,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">❌ Error: ${data?.error || "Failed to generate flashcards"}</div>`;
+          return;
+        }
+
+        // Reuse parsing logic from the main flashcards generator
+        const cards = data.reply.split(/(?=Q:)/i).filter(c => c.trim());
+        output.innerHTML = "";
+        cards.forEach((card, idx) => {
+          const lines = card.split("\n");
+          const qLine = lines.find(l => l.match(/^Q:/i)) || "";
+          const aLine = lines.find(l => l.match(/^A:/i)) || "";
+          const q = qLine.replace(/^Q:\s*/i, "").trim();
+          const a = aLine.replace(/^A:\s*/i, "").trim();
+          if (q) {
+            const div = document.createElement("div");
+            div.className = "flashcard";
+            div.textContent = q;
+            div.dataset.answer = a;
+            div.addEventListener("click", function() {
+              this.classList.toggle("flipped");
+              this.textContent = this.classList.contains("flipped") ? a : q;
+            });
+            output.appendChild(div);
+          }
+        });
+
+        if (output.children.length === 0) {
+          output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">Could not parse flashcards. Here's the raw response:<div style="margin-top: 16px; background: var(--surface); padding: 12px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(data.reply)}</div></div>`;
+        }
+      } catch (err) {
+        output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">❌ Network error: ${err.message}</div>`;
+      }
+    }
+
+    async function generateQuizFromAnswer(text, switchToTab = true) {
+      const prompt = `Using the full chat conversation and the assistant answer below, create a 5-question multiple choice quiz in English. Use the entire conversation as context, covering all prior user questions and earlier assistant replies. Do not focus only on the latest question.\n\n${text}`.trim();
+      if (!prompt) return;
+      if (switchToTab) {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        const qTab = [...document.querySelectorAll(".tab-btn")].find(b => b.dataset.tab === "quiz");
+        if (qTab) qTab.classList.add("active");
+        chatArea.style.display = "none";
+        podcastsSection.style.display = "none";
+        flashcardsSection.style.display = "none";
+        quizSection.style.display = "flex";
+        crosscheckSection.style.display = "none";
+      }
+
+      const output = document.getElementById("quiz-output");
+      output.innerHTML = `<div style="display: flex; justify-content: center; align-items: center; min-height: 200px;"><div class="loading-spinner" style="margin-right: 12px;"></div> Generating quiz...</div>`;
+
+      try {
+        const res = await fetch("/api/quiz", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: buildMessagesWithPrompt(prompt),
+            model: cfg.model,
+            notes: notesContent,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data?.error || "Failed to generate quiz"}</div>`;
+          return;
+        }
+
+        // Reuse the existing quiz rendering by setting the reply and parsing
+        const quizText = data.reply;
+        const questions = quizText.split(/(?=Q\d+:)/i).filter(q => q.trim());
+
+        output.innerHTML = "";
+        const userAnswers = [];
+
+        questions.forEach((qBlock, qIdx) => {
+          const qDiv = document.createElement("div");
+          qDiv.className = "quiz-question";
+          const lines = qBlock.split("\n").map(l => l.trim()).filter(l => l);
+          const qText = lines[0];
+          const options = lines.filter(l => /^[A-D]\)/.test(l));
+          const answerLine = lines.find(l => l.match(/^Answer:/i));
+          const correctAnswer = answerLine ? answerLine.replace(/^Answer:\s*/i, "").trim().charAt(0).toUpperCase() : "A";
+
+          qDiv.innerHTML = `<div class="quiz-question-text">${escapeHtml(qText)}</div><div class="quiz-options"></div>`;
+          const optionsDiv = qDiv.querySelector(".quiz-options");
+
+          options.forEach(opt => {
+            const letter = opt.charAt(0);
+            const optDiv = document.createElement("button");
+            optDiv.className = "quiz-option";
+            optDiv.textContent = escapeHtml(opt);
+            optDiv.addEventListener("click", () => {
+              const prevSelected = optionsDiv.querySelector(".quiz-option.selected");
+              if (prevSelected) prevSelected.classList.remove("selected");
+              optDiv.classList.add("selected");
+              userAnswers[qIdx] = letter;
+              setTimeout(() => {
+                optionsDiv.querySelectorAll(".quiz-option").forEach((optEl) => {
+                  const optLetter = optEl.textContent.charAt(0);
+                  if (optLetter === correctAnswer) optEl.classList.add("correct");
+                  else if (optEl === optDiv && optLetter !== correctAnswer) optEl.classList.add("incorrect");
+                });
+              }, 200);
+            });
+            optionsDiv.appendChild(optDiv);
+          });
+
+          output.appendChild(qDiv);
+        });
+
+        const submitBtn = document.createElement("button");
+        submitBtn.className = "btn-primary";
+        submitBtn.textContent = "📊 See Score";
+        submitBtn.style.marginTop = "20px";
+        submitBtn.addEventListener("click", () => {
+          let correct = 0;
+          questions.forEach((qBlock, idx) => {
+            const lines = qBlock.split("\n").map(l => l.trim()).filter(l => l);
+            const answerLine = lines.find(l => l.match(/^Answer:/i));
+            const correctAnswer = answerLine ? answerLine.replace(/^Answer:\s*/i, "").trim().charAt(0).toUpperCase() : "A";
+            if (userAnswers[idx] === correctAnswer) correct++;
+          });
+          const percentage = Math.round((correct / questions.length) * 100);
+          const scoreDiv = document.createElement("div");
+          scoreDiv.className = "quiz-score";
+          scoreDiv.textContent = `🎉 Score: ${correct}/${questions.length} (${percentage}%)`;
+          output.appendChild(scoreDiv);
+          submitBtn.style.display = "none";
+        });
+        output.appendChild(submitBtn);
+      } catch (err) {
+        output.innerHTML = `<div style="color: var(--accent2);">❌ Network error: ${err.message}</div>`;
+      }
+    }
+
+    // =====================================================================
+    //  PODCAST GENERATOR
+    // =====================================================================
+
+    document.getElementById("generate-podcast-btn").addEventListener("click", async () => {
+      const rawInput = document.getElementById("podcast-input").value;
+      const prompt = resolveFeaturePrompt(rawInput);
+      if (!prompt) {
+        alert("Ask a question in the chat first or type a topic.");
+        return;
+      }
+
+      const output = document.getElementById("podcast-output");
+      output.innerHTML = `<div class="loading-spinner"></div> Generating podcast audio...`;
+
+      try {
+        await generatePodcastFromAnswer(prompt, false);
+      } catch (err) {
+        output.textContent = `❌ Network error: ${err.message}`;
+      }
+    });
+
+    // =====================================================================
+    //  FLASHCARD GENERATOR
+    // =====================================================================
+
+    document.getElementById("generate-flashcard-btn").addEventListener("click", async () => {
+      const rawInput = document.getElementById("flashcard-input").value;
+      const prompt = resolveFeaturePrompt(rawInput);
+      if (!prompt) {
+        alert("Ask a question in the chat first or type a topic.");
+        return;
+      }
+
+      const output = document.getElementById("flashcards-output");
+      output.innerHTML = `<div style="grid-column: 1/-1; display: flex; justify-content: center; align-items: center; min-height: 200px;"><div class="loading-spinner" style="margin-right: 12px;"></div> Generating flashcards...</div>`;
+
+      try {
+        const res = await fetch("/api/flashcards", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: buildMessagesWithPrompt(prompt),
+            model: cfg.model,
+            notes: notesContent,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">❌ Error: ${data?.error || "Failed to generate flashcards"}</div>`;
+          return;
+        }
+
+        // Parse flashcards from response
+        const cards = data.reply.split(/(?=Q:)/i).filter(c => c.trim());
+        output.innerHTML = "";
+
+        cards.forEach((card, idx) => {
+          const lines = card.split("\n");
+          const qLine = lines.find(l => l.match(/^Q:/i)) || "";
+          const aLine = lines.find(l => l.match(/^A:/i)) || "";
+
+          const q = qLine.replace(/^Q:\s*/i, "").trim();
+          const a = aLine.replace(/^A:\s*/i, "").trim();
+
+          if (q) {
+            const div = document.createElement("div");
+            div.className = "flashcard";
+            div.textContent = q;
+            div.dataset.answer = a;
+
+            div.addEventListener("click", function() {
+              this.classList.toggle("flipped");
+              this.textContent = this.classList.contains("flipped") ? a : q;
+            });
+
+            output.appendChild(div);
+          }
+        });
+
+        if (output.children.length === 0) {
+          output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">Could not parse flashcards. Here's the raw response:<div style="margin-top: 16px; background: var(--surface); padding: 12px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(data.reply)}</div></div>`;
+        }
+      } catch (err) {
+        output.innerHTML = `<div style="grid-column: 1/-1; color: var(--accent2);">❌ Network error: ${err.message}</div>`;
+      }
+    });
+
+    // =====================================================================
+    //  QUIZ GENERATOR
+    // =====================================================================
+
+    document.getElementById("generate-quiz-btn").addEventListener("click", async () => {
+      const rawInput = document.getElementById("quiz-input").value;
+      const prompt = resolveFeaturePrompt(rawInput);
+      if (!prompt) {
+        alert("Ask a question in the chat first or type a topic.");
+        return;
+      }
+
+      const output = document.getElementById("quiz-output");
+      output.innerHTML = `<div style="display: flex; justify-content: center; align-items: center; min-height: 200px;"><div class="loading-spinner" style="margin-right: 12px;"></div> Generating quiz...</div>`;
+
+      try {
+        const res = await fetch("/api/quiz", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: buildMessagesWithPrompt(prompt),
+            model: cfg.model,
+            notes: notesContent,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          output.innerHTML = `<div style="color: var(--accent2);">❌ Error: ${data?.error || "Failed to generate quiz"}</div>`;
+          return;
+        }
+
+        const quizText = data.reply;
+        const questions = quizText.split(/(?=Q\d+:)/i).filter(q => q.trim());
+
+        output.innerHTML = "";
+        let score = 0;
+        const userAnswers = [];
+
+        questions.forEach((qBlock, qIdx) => {
+          const qDiv = document.createElement("div");
+          qDiv.className = "quiz-question";
+
+          const lines = qBlock.split("\n").map(l => l.trim()).filter(l => l);
+          const qText = lines[0];
+          const options = lines.filter(l => /^[A-D]\)/.test(l));
+          const answerLine = lines.find(l => l.match(/^Answer:/i));
+          const correctAnswer = answerLine ? answerLine.replace(/^Answer:\s*/i, "").trim().charAt(0).toUpperCase() : "A";
+
+          qDiv.innerHTML = `<div class="quiz-question-text">${escapeHtml(qText)}</div><div class="quiz-options"></div>`;
+
+          const optionsDiv = qDiv.querySelector(".quiz-options");
+
+          options.forEach(opt => {
+            const letter = opt.charAt(0);
+            const optDiv = document.createElement("button");
+            optDiv.className = "quiz-option";
+            optDiv.textContent = escapeHtml(opt);
+
+            optDiv.addEventListener("click", () => {
+              // Remove previously selected option
+              const prevSelected = optionsDiv.querySelector(".quiz-option.selected");
+              if (prevSelected) prevSelected.classList.remove("selected");
+
+              optDiv.classList.add("selected");
+              userAnswers[qIdx] = letter;
+
+              // Show correct/incorrect
+              setTimeout(() => {
+                optionsDiv.querySelectorAll(".quiz-option").forEach((opt, idx) => {
+                  const optLetter = opt.textContent.charAt(0);
+                  if (optLetter === correctAnswer) {
+                    opt.classList.add("correct");
+                  } else if (optDiv === opt && optLetter !== correctAnswer) {
+                    opt.classList.add("incorrect");
+                  }
+                });
+              }, 200);
+            });
+
+            optionsDiv.appendChild(optDiv);
+          });
+
+          output.appendChild(qDiv);
+        });
+
+        // Add submit button
+        const submitBtn = document.createElement("button");
+        submitBtn.className = "btn-primary";
+        submitBtn.textContent = "📊 See Score";
+        submitBtn.style.marginTop = "20px";
+
+        submitBtn.addEventListener("click", () => {
+          let correct = 0;
+          questions.forEach((qBlock, idx) => {
+            const lines = qBlock.split("\n").map(l => l.trim()).filter(l => l);
+            const answerLine = lines.find(l => l.match(/^Answer:/i));
+            const correctAnswer = answerLine ? answerLine.replace(/^Answer:\s*/i, "").trim().charAt(0).toUpperCase() : "A";
+
+            if (userAnswers[idx] === correctAnswer) correct++;
+          });
+
+          const percentage = Math.round((correct / questions.length) * 100);
+          const scoreDiv = document.createElement("div");
+          scoreDiv.className = "quiz-score";
+          scoreDiv.textContent = `🎉 Score: ${correct}/${questions.length} (${percentage}%)`;
+
+          output.appendChild(scoreDiv);
+          submitBtn.style.display = "none";
+        });
+
+        output.appendChild(submitBtn);
+      } catch (err) {
+        output.innerHTML = `<div style="color: var(--accent2);">❌ Network error: ${err.message}</div>`;
+      }
+    });
+
+    document.getElementById("generate-crosscheck-btn").addEventListener("click", async () => {
+      const question = crosscheckQuestionEl.value.trim();
+      const answer = crosscheckAnswerEl.value.trim();
+      if (!question || !answer) {
+        alert("Please provide both your question and your answer.");
+        return;
+      }
+      const prompt = `Student question: ${question}\nStudent answer: ${answer}\nUsing the full chat conversation and this student response, review the answer in English. Identify any issues, suggest improvements, and explain what the student should do next.`;
+      await generateCrosscheck(prompt, true);
+    });
+
+    init();
+  </script>
+</body>
+
+</html>

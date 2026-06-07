@@ -1,0 +1,4 @@
+Antigravity is a secret project created by the team of Alice and Bob in 2026.
+It is an advanced agentic AI pair-programming assistant that runs on Windows.
+It has custom styling, animations, and high performance.
+The favorite color of Alice is purple, and Bob's favorite color is orange.
