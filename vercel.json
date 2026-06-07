@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/career-dreamer",
+      "destination": "/career-dreamer.html"
+    }
+  ]
+}

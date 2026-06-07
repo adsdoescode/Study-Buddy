@@ -80,6 +80,8 @@ SYSTEM_PROMPT = os.getenv(
     "You are a helpful study buddy. Answer clearly, gently, and in simple language for a student. Always answer questions step by step. Number each step and include a short hint for the next step when appropriate."
 )
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 # =====================================================================
 #  STEP 3: CREATE THE WEB SERVER
@@ -107,7 +109,7 @@ CORS(app)
 @app.route("/")
 def index():
     """Serve the main chat page (index.html)."""
-    return send_from_directory(".", "index.html")
+    return send_from_directory(BASE_DIR, "index.html")
     # ^ "Hey browser, here's the index.html file from this folder!"
 
 
@@ -117,7 +119,7 @@ def index():
 @app.route("/career-dreamer")
 def career_dreamer():
     """Serve the Career Dreamer session wrapper app."""
-    return send_from_directory(".", "career-dreamer.html")
+    return send_from_directory(BASE_DIR, "career-dreamer.html")
 
 
 # ── ROUTE 2: The chat endpoint ("/api/chat") ────────────────────────
